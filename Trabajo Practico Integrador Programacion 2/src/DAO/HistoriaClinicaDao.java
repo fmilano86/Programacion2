@@ -23,21 +23,16 @@ public class HistoriaClinicaDao implements GenericDao<HistoriaClinica>{
 
     @Override
     public void crear(HistoriaClinica h) throws SQLException {
-        String sql = "INSERT INTO HistoriaClinica (eliminado, nroHistoria, grupoSanguineo, antecedentes, medicacionActual, observaciones) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setBoolean(1, h.isEliminado());
-            ps.setString(2, h.getNroHistoria());
-            ps.setString(3, h.getGrupoSanguineo());
-            ps.setString(4, h.getAntecedentes());
-            ps.setString(5, h.getMedicacionActual());
-            ps.setString(6, h.getObservaciones());
-            ps.executeUpdate();
+    String sql = "INSERT INTO HistoriaClinica (id, diagnostico, fechaCreacion, idPaciente) VALUES (?, ?, ?, ?)";
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) h.setId(rs.getLong(1));
-            }
-        }
+    try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+        ps.setLong(1, h.getId());            // ← ID ingresado por el usuario
+        ps.setString(2, h.getDiagnostico());
+        ps.setDate(3, h.getFechaCreacion());
+        ps.setLong(4, h.getIdPaciente());
+        ps.executeUpdate();
     }
+}
 
     @Override
     public HistoriaClinica leer(long id) throws SQLException {
@@ -63,19 +58,16 @@ public class HistoriaClinicaDao implements GenericDao<HistoriaClinica>{
     }
 
     @Override
-    public void actualizar(HistoriaClinica h) throws SQLException {
-        String sql = "UPDATE HistoriaClinica SET nroHistoria=?, grupoSanguineo=?, antecedentes=?, medicacionActual=?, observaciones=?, eliminado=? WHERE id=?";
-        try (PreparedStatement ps = conexion.prepareStatement(sql)) {
-            ps.setString(1, h.getNroHistoria());
-            ps.setString(2, h.getGrupoSanguineo());
-            ps.setString(3, h.getAntecedentes());
-            ps.setString(4, h.getMedicacionActual());
-            ps.setString(5, h.getObservaciones());
-            ps.setBoolean(6, h.isEliminado());
-            ps.setLong(7, h.getId());
-            ps.executeUpdate();
-        }
+public void actualizar(HistoriaClinica h) throws SQLException {
+    String sql = "UPDATE HistoriaClinica SET diagnostico = ?, fechaCreacion = ?, idPaciente = ? WHERE id = ?";
+    try (PreparedStatement ps = conexion.prepareStatement(sql)) {
+        ps.setString(1, h.getDiagnostico());
+        ps.setDate(2, h.getFechaCreacion());
+        ps.setLong(3, h.getIdPaciente());
+        ps.setLong(4, h.getId());
+        ps.executeUpdate();
     }
+}
 
     @Override
     public void eliminar(long id) throws SQLException {
@@ -87,15 +79,12 @@ public class HistoriaClinicaDao implements GenericDao<HistoriaClinica>{
     }
 
     private HistoriaClinica mapear(ResultSet rs) throws SQLException {
-        HistoriaClinica h = new HistoriaClinica();
-        h.setId(rs.getLong("id"));
-        h.setEliminado(rs.getBoolean("eliminado"));
-        h.setNroHistoria(rs.getString("nroHistoria"));
-        h.setGrupoSanguineo(rs.getString("grupoSanguineo"));
-        h.setAntecedentes(rs.getString("antecedentes"));
-        h.setMedicacionActual(rs.getString("medicacionActual"));
-        h.setObservaciones(rs.getString("observaciones"));
-        return h;
-    }
+    HistoriaClinica h = new HistoriaClinica();
+    h.setId(rs.getLong("id"));
+    h.setDiagnostico(rs.getString("diagnostico"));
+    h.setFechaCreacion(rs.getDate("fechaCreacion"));
+    h.setIdPaciente(rs.getLong("idPaciente"));
+    return h;
+}
 
 }

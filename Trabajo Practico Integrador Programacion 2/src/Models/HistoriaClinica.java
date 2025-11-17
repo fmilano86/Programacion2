@@ -4,6 +4,7 @@
  */
 package Models;
 
+import java.sql.Date;
 import java.util.Objects;
 
 /**
@@ -13,12 +14,9 @@ import java.util.Objects;
 public class HistoriaClinica {
      // Atributos
     private Long id;
-    private boolean eliminado;
-    private String nroHistoria;
-    private String grupoSanguineo;
-    private String antecedentes;
-    private String medicacionActual;
-    private String observaciones;
+    private String diagnostico;
+    private java.sql.Date fechaCreacion;
+    private Long idPaciente;
 
     // Constructores
 
@@ -27,15 +25,12 @@ public class HistoriaClinica {
     }
 
     // Constructor completo
-    public HistoriaClinica(Long id, boolean eliminado, String nroHistoria, String grupoSanguineo,
-                           String antecedentes, String medicacionActual, String observaciones) {
+    public HistoriaClinica(Long id, String diagnostico, java.sql.Date fechaCreacion, Long idPaciente) {
         this.id = id;
-        this.eliminado = eliminado;
-        this.nroHistoria = nroHistoria;
-        this.grupoSanguineo = grupoSanguineo;
-        this.antecedentes = antecedentes;
-        this.medicacionActual = medicacionActual;
-        this.observaciones = observaciones;
+        this.diagnostico = diagnostico;
+        this.fechaCreacion = fechaCreacion;
+        this.idPaciente = idPaciente;
+       
     }
 
     // Getters y Setters
@@ -48,68 +43,36 @@ public class HistoriaClinica {
         this.id = id;
     }
 
-    public boolean isEliminado() {
-        return eliminado;
+    public String getDiagnostico() {
+        return diagnostico;
     }
 
-    public void setEliminado(boolean eliminado) {
-        this.eliminado = eliminado;
+    public Date getFechaCreacion() {
+        return fechaCreacion;
     }
 
-    public String getNroHistoria() {
-        return nroHistoria;
+    public Long getIdPaciente() {
+        return idPaciente;
     }
 
-    public void setNroHistoria(String nroHistoria) {
-        this.nroHistoria = nroHistoria;
+    public void setDiagnostico(String diagnostico) {
+        this.diagnostico = diagnostico;
     }
 
-    public String getGrupoSanguineo() {
-        return grupoSanguineo;
+    public void setFechaCreacion(Date fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 
-    public void setGrupoSanguineo(String grupoSanguineo) {
-        this.grupoSanguineo = grupoSanguineo;
+    public void setIdPaciente(Long idPaciente) {
+        this.idPaciente = idPaciente;
     }
-
-    public String getAntecedentes() {
-        return antecedentes;
-    }
-
-    public void setAntecedentes(String antecedentes) {
-        this.antecedentes = antecedentes;
-    }
-
-    public String getMedicacionActual() {
-        return medicacionActual;
-    }
-
-    public void setMedicacionActual(String medicacionActual) {
-        this.medicacionActual = medicacionActual;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
-
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
-    }
-
-    // toString() legible
 
     @Override
     public String toString() {
-        return "HistoriaClinica {" +
-                "id=" + id +
-                ", eliminado=" + eliminado +
-                ", nroHistoria='" + nroHistoria + '\'' +
-                ", grupoSanguineo='" + grupoSanguineo + '\'' +
-                ", antecedentes='" + antecedentes + '\'' +
-                ", medicacionActual='" + medicacionActual + '\'' +
-                ", observaciones='" + observaciones + '\'' +
-                '}';
+        return "HistoriaClinica{" + "id=" + id + ", diagnostico=" + diagnostico + ", fechaCreacion=" + fechaCreacion + ", idPaciente=" + idPaciente + '}';
     }
+
+
 
     // equals() y hashCode() (opcional pero recomendable)
 

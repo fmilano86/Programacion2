@@ -27,7 +27,7 @@ public class PacienteDAO implements GenericDao<Paciente>{
 
             ps.setString(1, p.getNombre());
             ps.setString(2, p.getApellido());
-            ps.setInt(3, p.getDni());
+            ps.setLong(3, p.getDni());
             ps.setString(4, p.getDireccion());
             ps.setDate(5, p.getFechaNacimiento());
 
@@ -36,7 +36,7 @@ public class PacienteDAO implements GenericDao<Paciente>{
             // Obtener el ID generado
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                p.setIdPaciente(rs.getInt(1));
+                p.setIdPaciente(rs.getLong(1));
             }
 
         } catch (SQLException e) {
@@ -71,11 +71,11 @@ public class PacienteDAO implements GenericDao<Paciente>{
                 Paciente p = new Paciente(
                         rs.getString("nombre"),
                         rs.getString("apellido"),
-                        rs.getInt("dni"),
+                        rs.getLong("dni"),
                         rs.getString("direccion"),
                         rs.getDate("fecha_nacimiento")
                 );
-                p.setIdPaciente(rs.getInt("id_paciente"));
+                p.setIdPaciente(rs.getLong("id_paciente"));
                 lista.add(p);
             }
 
@@ -95,10 +95,10 @@ public class PacienteDAO implements GenericDao<Paciente>{
         try (PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setString(1, p.getNombre());
             ps.setString(2, p.getApellido());
-            ps.setInt(3, p.getDni());
+            ps.setLong(3, p.getDni());
             ps.setString(4, p.getDireccion());
             ps.setDate(5, p.getFechaNacimiento());
-            ps.setInt(6, p.getIdPaciente());
+            ps.setLong(6, p.getIdPaciente());
 
             ps.executeUpdate();
         }
@@ -119,11 +119,11 @@ public class PacienteDAO implements GenericDao<Paciente>{
         Paciente p = new Paciente(
                 rs.getString("nombre"),
                 rs.getString("apellido"),
-                rs.getInt("dni"),
+                rs.getLong("dni"),
                 rs.getString("direccion"),
                 rs.getDate("fecha_nacimiento")
         );
-        p.setIdPaciente(rs.getInt("id_paciente"));
+        p.setIdPaciente(rs.getLong("id_paciente"));
         return p;
     }
 }

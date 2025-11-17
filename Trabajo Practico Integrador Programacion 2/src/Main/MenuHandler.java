@@ -35,7 +35,14 @@ public class MenuHandler {
             String apellido = scanner.nextLine().trim();
 
             System.out.print("DNI: ");
-            String dni = scanner.nextLine().trim();
+            Long dni = Long.parseLong(scanner.nextLine().trim());
+            
+            System.out.print("Dirección: ");
+            String direccion = scanner.nextLine().trim();
+
+            System.out.print("Fecha nacimiento (yyyy-mm-dd): ");
+            String fechaStr = scanner.nextLine();
+            java.sql.Date fechaNacimiento = java.sql.Date.valueOf(fechaStr);
 
             HistoriaClinica historia = null;
             System.out.print("¿Desea crear una historia clínica para el paciente? (s/n): ");
@@ -43,10 +50,9 @@ public class MenuHandler {
                 historia = crearHistoriaClinica();
             }
 
-            Paciente paciente = new Paciente(0, nombre, apellido, dni);
-            paciente.setHistoriaClinica(historia);
+            Paciente paciente = new Paciente(nombre, apellido, dni, direccion, fechaNacimiento);
             pacienteService.insertar(paciente);
-            System.out.println("Paciente creado exitosamente con ID: " + paciente.getId());
+            System.out.println("Paciente creado exitosamente con ID: " + paciente.getIdPaciente());
         } catch (Exception e) {
             System.err.println("Error al crear paciente: " + e.getMessage());
         }
@@ -62,11 +68,8 @@ public class MenuHandler {
             }
 
             for (Paciente p : pacientes) {
-                System.out.println("ID: " + p.getId() + ", " + p.getNombre() + " " + p.getApellido() + " (DNI: " + p.getDni() + ")");
-                if (p.getHistoriaClinica() != null) {
-                    System.out.println("   Historia Clínica ID: " + p.getHistoriaClinica().getId() +
-                            " | Diagnóstico: " + p.getHistoriaClinica().getDiagnostico());
-                }
+                System.out.println("ID: " + p.getIdPaciente() + ", " + p.getNombre() + " " + p.getApellido() + " (DNI: " + p.getDni() + ")");
+                p.toString();
             }
         } catch (Exception e) {
             System.err.println("Error al listar pacientes: " + e.getMessage());
@@ -77,7 +80,7 @@ public class MenuHandler {
     public void actualizarPaciente() {
         try {
             System.out.print("ID del paciente a actualizar: ");
-            int id = Integer.parseInt(scanner.nextLine());
+            Long id = Long.parseLong(scanner.nextLine());
             Paciente p = pacienteService.getById(id);
 
             if (p == null) {
@@ -94,14 +97,9 @@ public class MenuHandler {
             if (!apellido.isEmpty()) p.setApellido(apellido);
 
             System.out.print("Nuevo DNI (" + p.getDni() + "): ");
-            String dni = scanner.nextLine().trim();
-            if (!dni.isEmpty()) p.setDni(dni);
-
-            System.out.print("¿Desea actualizar su historia clínica? (s/n): ");
-            if (scanner.nextLine().equalsIgnoreCase("s")) {
-                actualizarHistoriaClinicaPorPaciente(p);
-            }
-
+            Long dni = Long.parseLong(scanner.nextLine().trim());
+            p.setDni(dni);
+                        
             pacienteService.actualizar(p);
             System.out.println("Paciente actualizado correctamente.");
         } catch (Exception e) {
@@ -113,7 +111,7 @@ public class MenuHandler {
     public void eliminarPaciente() {
         try {
             System.out.print("ID del paciente a eliminar: ");
-            int id = Integer.parseInt(scanner.nextLine());
+            Long id = Long.parseLong(scanner.nextLine());
             pacienteService.eliminar(id);
             System.out.println("Paciente eliminado exitosamente.");
         } catch (Exception e) {
@@ -130,13 +128,19 @@ public class MenuHandler {
 
             System.out.print("Tratamiento: ");
             String tratamiento = scanner.nextLine().trim();
+            
+            java.sql.Date fechaCreacion = java.sql.Date.valueOf(java.time.LocalDate.now());
+            
+            System.out.print("Ingrese el ID del paciente: ");
+            Long idPaciente = Long.parseLong(scanner.nextLine().trim());
+
 
             if (diagnostico.isEmpty() || tratamiento.isEmpty()) {
                 System.out.println("Error: diagnóstico y tratamiento son obligatorios.");
                 return null;
             }
 
-            HistoriaClinica historia = new HistoriaClinica(0, diagnostico, tratamiento);
+            HistoriaClinica historia = new HistoriaClinica(null, diagnostico, fechaCreacion, idPaciente);
             historiaClinicaService.insertar(historia);
             System.out.println("Historia clínica creada exitosamente con ID: " + historia.getId());
             return historia;
@@ -157,8 +161,7 @@ public class MenuHandler {
             }
 
             for (HistoriaClinica h : historias) {
-                System.out.println("ID: " + h.getId() + ", Diagnóstico: " + h.getDiagnostico() +
-                        ", Tratamiento: " + h.getTratamiento());
+                h.toString();
             }
         } catch (Exception e) {
             System.err.println("Error al listar historias clínicas: " + e.getMessage());
@@ -169,7 +172,7 @@ public class MenuHandler {
     public void actualizarHistoriaClinicaPorId() {
         try {
             System.out.print("ID de la historia clínica a actualizar: ");
-            int id = Integer.parseInt(scanner.nextLine());
+            Long id = Long.parseLong(scanner.nextLine());
 
             HistoriaClinica h = historiaClinicaService.getById(id);
             if (h == null) {
@@ -181,10 +184,7 @@ public class MenuHandler {
             String diagnostico = scanner.nextLine().trim();
             if (!diagnostico.isEmpty()) h.setDiagnostico(diagnostico);
 
-            System.out.print("Nuevo tratamiento (actual: " + h.getTratamiento() + "): ");
-            String tratamiento = scanner.nextLine().trim();
-            if (!tratamiento.isEmpty()) h.setTratamiento(tratamiento);
-
+            
             historiaClinicaService.actualizar(h);
             System.out.println("Historia clínica actualizada exitosamente.");
         } catch (Exception e) {
@@ -196,7 +196,7 @@ public class MenuHandler {
     public void eliminarHistoriaClinicaPorId() {
         try {
             System.out.print("ID de la historia clínica a eliminar: ");
-            int id = Integer.parseInt(scanner.nextLine());
+            Long id = Long.parseLong(scanner.nextLine());
             historiaClinicaService.eliminar(id);
             System.out.println("Historia clínica eliminada exitosamente.");
         } catch (Exception e) {
@@ -204,49 +204,6 @@ public class MenuHandler {
         }
     }
 
-    /** Opción 9: Actualizar historia clínica de un paciente */
-    public void actualizarHistoriaClinicaPorPaciente(Paciente paciente) {
-        try {
-            HistoriaClinica h = paciente.getHistoriaClinica();
-            if (h == null) {
-                System.out.println("El paciente no tiene historia clínica asociada.");
-                return;
-            }
-
-            System.out.print("Nuevo diagnóstico (actual: " + h.getDiagnostico() + "): ");
-            String diagnostico = scanner.nextLine().trim();
-            if (!diagnostico.isEmpty()) h.setDiagnostico(diagnostico);
-
-            System.out.print("Nuevo tratamiento (actual: " + h.getTratamiento() + "): ");
-            String tratamiento = scanner.nextLine().trim();
-            if (!tratamiento.isEmpty()) h.setTratamiento(tratamiento);
-
-            historiaClinicaService.actualizar(h);
-            System.out.println("Historia clínica del paciente actualizada exitosamente.");
-        } catch (Exception e) {
-            System.err.println("Error al actualizar historia clínica del paciente: " + e.getMessage());
-        }
-    }
-
-    /** Opción 10: Eliminar historia clínica de un paciente */
-    public void eliminarHistoriaClinicaPorPaciente() {
-        try {
-            System.out.print("ID del paciente: ");
-            int idPaciente = Integer.parseInt(scanner.nextLine());
-
-            Paciente p = pacienteService.getById(idPaciente);
-            if (p == null || p.getHistoriaClinica() == null) {
-                System.out.println("El paciente no tiene historia clínica asociada.");
-                return;
-            }
-
-            historiaClinicaService.eliminar(p.getHistoriaClinica().getId());
-            p.setHistoriaClinica(null);
-            pacienteService.actualizar(p);
-            System.out.println("Historia clínica eliminada y desasociada del paciente correctamente.");
-        } catch (Exception e) {
-            System.err.println("Error al eliminar historia clínica del paciente: " + e.getMessage());
-        }
-    }
+    
 }
 

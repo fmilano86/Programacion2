@@ -15,13 +15,13 @@ import java.sql.SQLException;
  */
 public final class DatabaseConnection {
     /** URL de conexión JDBC. poner el url que corresponda */
-    private static final String URL = System.getProperty("db.url", "jdbc:mysql://localhost:3305/tfibd");
+    private static final String URL = System.getProperty("db.url", "jdbc:mysql://localhost:3306/tfibd");
 
     /** Usuario de la base de datos. poner usuario segun corresponda*/
     private static final String USER = System.getProperty("db.user", "root");
 
     /** Contraseña del usuario. poner contraseña si corresponde entre las dos comillas */
-    private static final String PASSWORD = System.getProperty("db.password", "Abouttime1");
+    private static final String PASSWORD = System.getProperty("db.password", "");
 
     /**
      * Bloque de inicialización estática.

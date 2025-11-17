@@ -9,10 +9,13 @@ package Main;
  * @author AMD-PC
  */
 import java.util.Scanner;
-import DAO.HistoriaClinicaDAO;
+import DAO.HistoriaClinicaDao;
 import DAO.PacienteDAO;
-import Service.HisotriaClinicaService;
+import Service.HistoriaClinicaService;
 import Service.PacienteService;
+import Config.DatabaseConnection;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Orquestador principal del menú de la aplicación.
@@ -70,11 +73,31 @@ public class AppMenu {
      * Esta inicialización garantiza que todas las dependencias estén correctamente conectadas.
      */
     public AppMenu() {
-        this.scanner = new Scanner(System.in);
-        PacienteeService pacienteService = createPacienteService();
-        this.menuHandler = new MenuHandler(scanner, PacienteService);
+    this.scanner = new Scanner(System.in);
+
+    try {
+        // 1) Obtener conexión a la base de datos
+        Connection conn = DatabaseConnection.getConnection();
+
+        // 2) Crear DAOs
+        PacienteDAO pacienteDAO = new PacienteDAO(conn);
+        HistoriaClinicaDao historiaClinicaDao = new HistoriaClinicaDao(conn);
+
+        // 3) Crear Services
+        PacienteService pacienteService = new PacienteService(conn, pacienteDAO);
+        HistoriaClinicaService historiaClinicaService = new HistoriaClinicaService(conn, historiaClinicaDao);
+
+        // 4) Crear MenuHandler con todas las dependencias
+        this.menuHandler = new MenuHandler(scanner, pacienteService, historiaClinicaService);
+
+        // 5) Iniciar el loop
         this.running = true;
+
+    } catch (SQLException e) {
+        // Si falla la conexión, no tiene sentido seguir
+        throw new RuntimeException("Error al inicializar la aplicación: " + e.getMessage(), e);
     }
+}
 
     /**
      * Punto de entrada de la aplicación Java.
@@ -158,8 +181,6 @@ public class AppMenu {
             case 6 -> menuHandler.listarHistoriaClinica();
             case 7 -> menuHandler.actualizarHistoriaClinicaPorId();
             case 8 -> menuHandler.eliminarHistoriaClinicaPorId();
-            case 9 -> menuHandler.actualizarHistoriaClinicaPorPaciente();
-            case 10 -> menuHandler.eliminarHistoriaClinicaPorPaciente();
             case 0 -> {
                 System.out.println("Saliendo...");
                 running = false;
@@ -169,10 +190,4 @@ public class AppMenu {
     }
 
     
-    private PacienteServiceImpl createPacienteService() {
-        DomicilioDAO domicilioDAO = new HistoriaClinicaDAO();
-        PacienteDAO pacienteDAO = new PacienteDAO(HistoriaClinicaDAO);
-        HistoriaClinicaServiceImpl HistoriaClinicaService = new HistoriaClinicaServiceImpl(HistoriaClinicaDAO);
-        return new PacienteServiceImpl(pacienteDAO, HistoriaClinicaService);
-    }
 }
